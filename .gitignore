@@ -14,6 +14,8 @@ notebooks/*
 !notebooks/credit_health_analysis.ipynb
 !notebooks/Sample_ML_Submission_Templatedone_.ipynb
 *.csv
+!data/
+!data/credit_health_demo.csv
 *.csv.gz
 *.joblib
 *.pptx

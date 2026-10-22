@@ -8,7 +8,16 @@ import plotly.graph_objects as go
 import streamlit as st
 
 ROOT=Path(__file__).resolve().parent
-CSV=Path(os.environ.get("PAISABAZAAR_DATA",str(ROOT/"dataset-2.csv"))).expanduser()
+def find_data_file():
+    configured=os.environ.get("PAISABAZAAR_DATA")
+    candidates=[]
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    candidates.extend([ROOT/"dataset-2.csv",ROOT/"data"/"credit_health_demo.csv"])
+    return next((path for path in candidates if path.exists()),None)
+
+CSV=find_data_file()
+USING_DEMO=CSV is not None and CSV.name=="credit_health_demo.csv"
 SCORES=["Poor","Standard","Good"]
 COLORS={"Poor":"#C96758","Standard":"#C58A2C","Good":"#25816F"}
 MIX_COLORS={"Bad":"#C96758","Standard":"#7D91A3","Good":"#25816F"}
@@ -207,8 +216,8 @@ def card(title,body):
     st.markdown('<div class="card"><div class="card-label">{}</div><div class="card-body">{}</div></div>'.format(title,body),unsafe_allow_html=True)
 def percent(v):return "—" if pd.isna(v) else "{:.1f}%".format(v)
 
-if not CSV.exists():
-    st.error("Put dataset-2.csv beside app.py.");st.stop()
+if CSV is None:
+    st.error("No dataset was found. Put dataset-2.csv beside app.py, set PAISABAZAAR_DATA, or restore data/credit_health_demo.csv.");st.stop()
 try:data=load_data(str(CSV),CSV.stat().st_mtime)
 except Exception as e:
     st.error("Could not load dataset-2.csv.");st.caption(str(e));st.stop()
@@ -223,11 +232,15 @@ with st.sidebar:
     mixes=sorted(data.Credit_Mix.dropna().astype(str).unique())
     credit_mix=st.multiselect("Credit mix",mixes,default=mixes)
     st.caption("Journeys use all groups within selected months. No names, SSNs, or individual records are shown.")
+    if USING_DEMO:
+        st.caption("Public deployment: synthetic educational demo data.")
 
 period=data[data.Month.between(*months)]
 view=period[period.Credit_Score.isin(scores)&period.Credit_Mix.astype(str).isin(credit_mix)]
 people=view.Customer_ID.nunique() if len(view) else 0
 st.markdown('<div style="color:#607487;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:.4rem">ANALYTICS / CUSTOMER EDUCATION</div>',unsafe_allow_html=True)
+if USING_DEMO:
+    st.caption("Using synthetic demo data generated for this public educational dashboard. It does not represent real customers or Paisabazaar operations.")
 
 if page=="Overview":
     banner("A clearer view of credit health","Explore portfolio patterns across monthly snapshots and turn signals into responsible customer education.")
@@ -441,7 +454,7 @@ else:
     st.markdown("### What the dashboard contains")
     col1,col2,col3=st.columns(3)
     with col1:
-        st.markdown('<div class="method-card"><h4>100,000 monthly records</h4><p>12,500 customers observed across eight snapshots. A monthly row is not a unique person.</p></div>',unsafe_allow_html=True)
+        st.markdown('<div class="method-card"><h4>{:,} monthly records</h4><p>{:,} customer profiles observed across {} snapshots. A monthly row is not a unique person.</p></div>'.format(len(data),data.Customer_ID.nunique(),data.Month.nunique()),unsafe_allow_html=True)
     with col2:
         st.markdown('<div class="method-card"><h4>Three supplied labels</h4><p>Poor, Standard, and Good are the existing dataset categories, not observed default or repayment outcomes.</p></div>',unsafe_allow_html=True)
     with col3:
