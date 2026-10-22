@@ -12,6 +12,7 @@ outputs/
 !notebooks/
 notebooks/*
 !notebooks/credit_health_analysis.ipynb
+!notebooks/Sample_ML_Submission_Templatedone_.ipynb
 *.csv
 *.csv.gz
 *.joblib
