@@ -1,6 +1,6 @@
-# Paisabazaar Credit Health Studio
+# Paisabazaar Credit Portfolio Intelligence
 
-An interactive Streamlit portfolio-analysis dashboard alongside the original Jupyter notebook. It explores score-label patterns, payment behaviour, aggregate customer journeys, and responsible customer-education experiments.
+An interactive business-intelligence dashboard and Jupyter analysis for portfolio composition, segment drivers, movement monitoring, and evidence-based decision design. It helps analysts frame operational questions from data; it does not make individual credit decisions.
 
 ## Run on Windows
 
@@ -20,5 +20,5 @@ The cloud service is ready to deploy from GitHub. Use the bundled synthetic data
 
 ## Scope and interpretation
 
-This is a descriptive analyst and customer-education project, not a default-risk model, eligibility tool, or automated credit decision service. The dataset has score labels but no verified repayment/default, application, approval, campaign, conversion, or revenue outcomes. Chart relationships are not causal evidence, and units/currency have not been verified. Business impact requires additional outcome data and a carefully measured pilot.
+This is a descriptive business-analysis project, not a default-risk model, eligibility tool, or automated credit decision service. The dataset has score labels but no verified repayment/default, application, approval, policy-decision, conversion, or revenue outcomes. Chart relationships are not causal evidence, and units/currency have not been verified. Operational changes require governed outcome data, time-based validation, and a documented decision rule.
 

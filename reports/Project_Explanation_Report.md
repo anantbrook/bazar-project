@@ -1,29 +1,29 @@
 # Paisabazaar Credit Health Analysis and Dashboard
 
 **Detailed project explanation report**  
-**Project type:** Exploratory data analysis, customer-level statistical analysis, score-label benchmark, and interactive Streamlit dashboard  
-**Prepared:** 22 October 2026
+**Project type:** Exploratory data analysis, portfolio-level statistical analysis, score-label benchmark, and interactive business-intelligence dashboard  
+**Prepared:** 23 October 2026
 
 ## 1. Executive summary
 
-This project studies a monthly credit-profile dataset and presents its patterns in an interactive dashboard. The business purpose is to help Paisabazaar understand observed credit-health segments and design more useful customer education. The work is not a competition analysis and does not make decisions about any individual.
+This project studies a monthly credit-profile dataset and presents its patterns in an interactive dashboard. Its business purpose is to help Paisabazaar monitor portfolio composition, investigate segment-level signals, and define evidence requirements for better operational decisions. The work is not a competition analysis and does not make decisions about any individual.
 
 The source contains 100,000 monthly observations for 12,500 customers across eight snapshots. The available outcome is a three-category credit-score label: Poor, Standard, or Good. The largest group is Standard (53.2% of rows), followed by Poor (29.0%) and Good (17.8%).
 
-The analysis finds descriptive differences between score groups. For example, median reported payment delay is 27 days in Poor-labelled records and 10 days in Good-labelled records. Customer-level hypothesis tests also find associations between score category and income, credit mix, and payment delay. These results help identify topics for investigation and customer education; they do not show that a product or intervention caused a score change.
+The analysis finds descriptive differences between score groups. For example, median reported payment delay is 27 days in Poor-labelled records and 10 days in Good-labelled records. Profile-level hypothesis tests also find associations between score category and income, credit mix, and payment delay. These results help prioritize data-quality review, cohort investigation, and future outcome analysis; they do not show that a product or intervention caused a score change.
 
-The notebook includes a Logistic Regression benchmark to classify the dataset's existing score label. On a customer-separated 20% test set, it achieves 0.668 accuracy, 0.710 balanced accuracy, and 0.662 macro F1. Hyperparameter tuning changes these values only slightly. This model predicts the existing label, not default, repayment, eligibility, or the effect of customer advice. It is not used by the dashboard.
+The notebook includes a Logistic Regression benchmark to classify the dataset's existing score label. On a profile-separated 20% test set, it achieves 0.668 accuracy, 0.710 balanced accuracy, and 0.662 macro F1. Hyperparameter tuning changes these values only slightly. This model predicts the existing label, not default, repayment, eligibility, approval, or business value. It is not used by the dashboard.
 
-The Streamlit dashboard has five sections: Overview, Credit patterns, Customer journey, Action planner, and Method & limits. It renders aggregate results only. A local launcher and a Render configuration are included. The cloud service has not been deployed; cloud use requires an authorized de-identified data source and a connected hosting account.
+The Streamlit dashboard has five sections: Executive overview, Portfolio drivers, Portfolio movement, Decision brief, and Data & limits. It renders aggregate results only. A local launcher and cloud configuration are included. The public deployment uses a bundled synthetic dataset; authorized private analysis can use an approved de-identified source through `PAISABAZAAR_DATA`.
 
 ## 2. Business context and project objective
 
-Paisabazaar helps customers explore banking and credit products. Understanding customer credit profiles may help the business make its assessment process clearer and provide more relevant educational guidance. The project explores the data with the following objectives:
+Paisabazaar operates in banking and credit-product discovery. Understanding portfolio-level credit profiles can help the business define stronger monitoring, review, and measurement practices. The project explores the data with the following objectives:
 
 - Describe the distribution of the supplied credit-score categories.
 - Compare payment, debt, credit-mix, and inquiry patterns across those categories.
-- Summarize how customer score labels differ between the first and last selected snapshots.
-- Identify responsible customer-education experiments that can be tested with verified outcomes.
+- Summarize how portfolio score labels differ between the first and last selected snapshots.
+- Convert descriptive signals into explicit business-decision hypotheses that can be tested with verified outcomes.
 - Provide an interactive, readable interface for exploring aggregate patterns.
 
 The business goals of reducing defaults, improving approvals, increasing customer understanding, or improving revenue cannot be measured with this dataset. It does not contain verified repayment/default outcomes, application or approval records, campaign exposure, customer conversions, or revenue. The report therefore treats these as future measurement goals rather than achieved project results.
@@ -39,8 +39,8 @@ The project combines a Jupyter notebook for analysis and a Streamlit web dashboa
 | Exploration | Compared aggregate score composition and related payment, debt, credit-mix, income, and inquiry indicators. |
 | Statistical analysis | Built one record per customer for three hypothesis tests so repeated monthly rows did not count as independent customers. |
 | Benchmark model | Used a group-aware train/test split and a Logistic Regression classifier to predict the supplied score label for analysis practice. |
-| Dashboard | Added interactive filters, aggregate charts, score-transition summaries, and a customer-education pilot planner. |
-| Deployment preparation | Added a one-click Windows launcher and a Render start configuration. No cloud deployment has been performed. |
+| Dashboard | Added interactive filters, aggregate charts, score-transition summaries, and a business decision brief. |
+| Deployment preparation | Added a one-click Windows launcher, cloud start configuration, and a bundled synthetic public demo dataset. |
 
 ## 4. Dataset overview
 
@@ -160,29 +160,29 @@ Tuning provides a negligible change at the reported precision and does not mater
 
 | Section | Purpose and controls |
 |---|---|
-| Overview | Shows filtered row and customer counts, Good-label share, median reported delay, monthly score-label trend, overall composition, and an aggregate monthly CSV download. |
-| Credit patterns | Compares credit mix, payment behaviour, minimum-payment responses, and selectable median indicators across score labels. |
-| Customer journey | Builds a first-to-last label transition heatmap and improvement/stability/decline shares for customers with at least two selected snapshots. |
-| Action planner | Lets the analyst choose a theme such as delays, utilization, debt, inquiries, or history; displays aggregate medians and suggests an education pilot. It uses all score groups and mixes within the selected months. |
-| Method & limits | Explains data preparation, privacy behavior, model scope, and limitations. |
+| Executive overview | Shows filtered row and profile counts, Good-label share, median reported delay, monthly score-label trend, overall composition, and an aggregate monthly CSV download. |
+| Portfolio drivers | Compares credit mix, payment behaviour, minimum-payment responses, and selectable median indicators across score labels. |
+| Portfolio movement | Builds a first-to-last label transition heatmap and higher/stable/lower label shares for profiles with at least two selected snapshots. |
+| Decision brief | Lets the analyst choose a business lens such as delays, utilization, debt, inquiries, or history; displays aggregate medians and specifies the next evidence-gathering step. It uses all score groups and mixes within the selected months. |
+| Data & limits | Explains data preparation, privacy behavior, model scope, and decision-use limitations. |
 
-The sidebar provides a month-range slider and filters for score groups and credit mix. The customer-journey page intentionally uses all score groups and credit mixes within the selected months so that selecting one score category does not erase the start-to-end movement.
+The sidebar provides a month-range slider and filters for score groups and credit mix. The portfolio-movement page intentionally uses all score groups and credit mixes within the selected months so that selecting one score category does not erase the start-to-end movement.
 
-The UI is designed for aggregate analysis and customer education. It has no individual lookup, row-level display, eligibility decision, default prediction, or personalized credit recommendation.
+The UI is designed for aggregate business analysis and decision support. It has no individual lookup, row-level display, automated eligibility decision, default prediction, or personalized credit recommendation.
 
 ## 9. Business recommendations and measurement plan
 
-The dashboard can guide questions and pilot design, but not prove a positive impact. The following are candidate experiments:
+The dashboard can prioritize analysis and decision design, but it cannot prove a positive impact. The following are recommended business-analysis workstreams:
 
-1. **Payment schedule education:** test opt-in reminders and clear payment-date explanations. Measure delivery, customer understanding, on-time payment outcomes, opt-outs, and complaints.
-2. **Credit-mix education:** explain what the categories in a credit report mean and how customers can review report accuracy. Do not encourage customers to apply for products just to change a label.
-3. **Debt overview tools:** test a clear summary of outstanding balances and repayment options. Confirm the source units and definitions before showing amounts or making recommendations.
-4. **Inquiry transparency:** explain how enquiries may be recorded and how customers can review them. Avoid blanket advice to avoid needed credit.
-5. **Credit-history education:** help customers understand report history and dispute errors. Avoid encouraging customers to open or retain products solely to affect a score.
+1. **Portfolio monitoring:** track score-label mix, payment-delay distribution, debt exposure, and inquiry volume over time. Set materiality thresholds and review owners before treating a change as an operational signal.
+2. **Driver validation:** test whether credit mix, payment indicators, debt, inquiries, and history are available at decision time, stable across periods, and incremental to a defined outcome.
+3. **Outcome linkage:** join governed repayment, delinquency, application, approval, and revenue data to measure actual business impact rather than label association.
+4. **Decision experiment:** where a process, workflow, or offer is changed, use a time-separated comparison or controlled test with a pre-specified success metric.
+5. **Model governance:** retain human review for consequential decisions; document input lineage, threshold rationale, monitoring, and segment performance before operational deployment.
 
-For every pilot, define the eligible audience, baseline period, comparison group, primary outcome, follow-up window, and customer-harm checks before launch. Prefer a randomized holdout when appropriate. Track engagement and comprehension, but do not substitute them for verified repayment or customer outcomes. Evaluate complaints, opt-outs, fairness across relevant groups, and unintended consequences alongside any business metric.
+For every operating change, define a decision owner, baseline period, comparison group, primary outcome, follow-up window, and escalation procedure before launch. Prefer a randomized holdout or time-separated backtest when appropriate. Do not substitute dashboard engagement for verified repayment, approval, or revenue outcomes. Evaluate stability, missingness, segment performance, and unintended consequences alongside any business metric.
 
-A future measurement dataset would need verified outcome fields such as repayment status, delinquency timing, product application and approval events, campaign exposure, customer consent, and business outcomes. Governance review is needed before adding such data.
+A future measurement dataset needs verified outcome fields such as repayment status, delinquency timing, product application and approval events, policy decisions, conversion, revenue, and post-decision performance. Governance review is needed before adding or joining such data.
 
 ## 10. Limitations and responsible use
 
@@ -208,15 +208,16 @@ A future measurement dataset would need verified outcome fields such as repaymen
 
 ### Cloud preparation
 
-The Render configuration starts the Streamlit app. The raw CSV is ignored by Git and is not included in the deployment configuration. For a hosted instance, provide a dataset that is authorized for hosting, preferably de-identified, in private storage and set PAISABAZAAR_DATA to its path. The current service is not deployed; a connected source repository, hosting account, and approved data access are still required. Do not upload the source CSV to a public repository or public demo.
+The public deployment uses the bundled synthetic `data/credit_health_demo.csv`; it is safe for demonstration but does not represent real customers or Paisabazaar operations. For authorized private analysis, use an approved de-identified source in private storage and set `PAISABAZAAR_DATA` to its path. Do not upload the source CSV to a public repository or public demo.
 
 ## 12. Project files
 
 | File | Role |
 |---|---|
 | app.py | Streamlit dashboard code. |
-| Sample_ML_Submission_Templatedone .ipynb | Analysis notebook, chart experiments, customer-level statistical tests, and score-label model benchmark. |
+| Sample_ML_Submission_Templatedone_.ipynb | Analysis notebook, chart experiments, profile-level statistical tests, and score-label model benchmark. |
 | dataset-2.csv | Local source data. Contains direct identifiers; excluded from Git and should remain private. |
+| data/credit_health_demo.csv | Synthetic public dataset used by the deployed dashboard. |
 | requirements.txt | Python dependencies for notebook and dashboard. |
 | run_dashboard.bat | One-click Windows launcher for local use. |
 | render.yaml | Render service configuration; does not deploy or provide the dataset by itself. |
@@ -224,9 +225,9 @@ The Render configuration starts the Streamlit app. The raw CSV is ignored by Git
 
 ## 13. Conclusion
 
-The project provides an interactive, aggregate-level description of credit-profile patterns and a foundation for customer-education experiments. In this dataset, reported payment delays, debt, credit mix, income, and inquiries vary across the supplied score categories. Most customers retain the same first-to-last category across the eight snapshots, while smaller groups move up or down.
+The project provides an interactive, aggregate-level view of credit-profile patterns and a foundation for data-backed business decision design. In this dataset, reported payment delays, debt, credit mix, income, and inquiries vary across the supplied score categories. Most profiles retain the same first-to-last category across the eight snapshots, while smaller groups move up or down.
 
-The business opportunity is to turn these patterns into carefully designed, testable support ideas and evaluate them using verified customer and repayment outcomes. This analysis does not demonstrate that Paisabazaar has reduced defaults, improved approvals, or increased revenue. It is an analyst dashboard and educational demonstration, not a production credit-decision platform.
+The business opportunity is to turn these patterns into governed portfolio monitoring, hypothesis testing, and outcome measurement. This analysis does not demonstrate that Paisabazaar has reduced defaults, improved approvals, or increased revenue. It is a decision-support dashboard and portfolio-analysis demonstration, not a production credit-decision platform.
 
 ## 14. Project artifacts and source basis
 
@@ -237,9 +238,9 @@ This report is based on the local project artifacts: the supplied dataset-2.csv,
 1. Confirm data provenance, sampling, date coverage, units, and the business meaning of each field with the data owner.
 2. Review the notebook's saved outputs and remove any displayed customer-level data before sharing the notebook.
 3. Agree on privacy, consent, retention, and access controls before using any customer data outside the local environment.
-4. Define a small, customer-approved education pilot with a comparison group and pre-specified primary outcome.
-5. Add verified repayment, delinquency, application, approval, campaign-exposure, and customer-experience outcomes only under appropriate governance.
-6. Evaluate the pilot with confidence intervals, fairness checks, customer-harm measures, and a documented decision rule.
+4. Define a priority business decision, owner, comparison strategy, and pre-specified primary outcome.
+5. Add verified repayment, delinquency, application, approval, policy-decision, conversion, and revenue outcomes only under appropriate governance.
+6. Evaluate each decision rule or process change with confidence intervals, stability checks, segment performance, and a documented decision rule.
 7. Revisit the predictive benchmark only if there is a valid operational target, reliable time-available predictors, an independent temporal validation set, and a clear human-review process.
 
 ---

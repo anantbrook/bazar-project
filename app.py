@@ -26,7 +26,7 @@ MIN_PAYMENT_COLORS={"NM":"#718096","No":"#C58A2C","Yes":"#25816F"}
 CATEGORY_LABELS={"NM":"Not mentioned","High_spent_Large_value_payments":"High · large payments","High_spent_Medium_value_payments":"High · medium payments","High_spent_Small_value_payments":"High · small payments","Low_spent_Large_value_payments":"Low · large payments","Low_spent_Medium_value_payments":"Low · medium payments","Low_spent_Small_value_payments":"Low · small payments"}
 FALLBACK_COLORS=["#426B8C","#66A69D","#C58A2C","#8873A9","#C96758","#6A8D68"]
 IDENTIFIERS={"ID","Name","SSN"}
-st.set_page_config(page_title="Paisabazaar | Credit Health Studio",page_icon="◈",layout="wide")
+st.set_page_config(page_title="Paisabazaar | Credit Portfolio Intelligence",page_icon="◈",layout="wide")
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"]{background:#F5F7FA}
@@ -223,27 +223,27 @@ except Exception as e:
     st.error("Could not load dataset-2.csv.");st.caption(str(e));st.stop()
 
 with st.sidebar:
-    st.markdown('<div style="padding:.4rem 0 1.1rem"><span style="color:#8DD7CC;font-size:.72rem;letter-spacing:.15em">PAISABAZAAR</span><div style="font-size:1.25rem;font-weight:800">Credit Health Studio</div><span style="color:#A9B8C8">Portfolio analytics & customer guidance</span></div>',unsafe_allow_html=True)
-    page=st.radio("Explore",["Overview","Credit patterns","Customer journey","Action planner","Method & limits"],label_visibility="collapsed")
+    st.markdown('<div style="padding:.4rem 0 1.1rem"><span style="color:#8DD7CC;font-size:.72rem;letter-spacing:.15em">PAISABAZAAR</span><div style="font-size:1.25rem;font-weight:800">Credit Portfolio Intelligence</div><span style="color:#A9B8C8">Data-backed portfolio decision support</span></div>',unsafe_allow_html=True)
+    page=st.radio("Explore",["Executive overview","Portfolio drivers","Portfolio movement","Decision brief","Data & limits"],label_visibility="collapsed")
     st.markdown("---");st.markdown("#### Snapshot filters")
     lo,hi=int(data.Month.min()),int(data.Month.max())
     months=st.slider("Monthly snapshot range",lo,hi,(lo,hi))
     scores=st.multiselect("Credit-score groups",SCORES,default=SCORES)
     mixes=sorted(data.Credit_Mix.dropna().astype(str).unique())
     credit_mix=st.multiselect("Credit mix",mixes,default=mixes)
-    st.caption("Journeys use all groups within selected months. No names, SSNs, or individual records are shown.")
+    st.caption("Movement analysis uses all groups within the selected months. No names, SSNs, or individual records are shown.")
     if USING_DEMO:
-        st.caption("Public deployment: synthetic educational demo data.")
+        st.caption("Public deployment: synthetic business-demo data.")
 
 period=data[data.Month.between(*months)]
 view=period[period.Credit_Score.isin(scores)&period.Credit_Mix.astype(str).isin(credit_mix)]
 people=view.Customer_ID.nunique() if len(view) else 0
-st.markdown('<div style="color:#607487;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:.4rem">ANALYTICS / CUSTOMER EDUCATION</div>',unsafe_allow_html=True)
+st.markdown('<div style="color:#607487;font-size:.72rem;font-weight:700;letter-spacing:.12em;margin-bottom:.4rem">BUSINESS INTELLIGENCE / PORTFOLIO ANALYTICS</div>',unsafe_allow_html=True)
 if USING_DEMO:
-    st.caption("Using synthetic demo data generated for this public educational dashboard. It does not represent real customers or Paisabazaar operations.")
+    st.caption("Using synthetic demo data generated for this public business-analysis dashboard. It does not represent real customers or Paisabazaar operations.")
 
-if page=="Overview":
-    banner("A clearer view of credit health","Explore portfolio patterns across monthly snapshots and turn signals into responsible customer education.")
+if page=="Executive overview":
+    banner("Credit portfolio decision intelligence","Monitor portfolio composition, identify material segment differences, and define the evidence required for better operating decisions.","EXECUTIVE OVERVIEW")
     st.markdown('<div class="notice"><b>Read responsibly:</b> charts summarize groups. They describe associations; they do not explain score changes or predict repayment.</div>',unsafe_allow_html=True)
     if view.empty:st.warning("No records match these filters.");st.stop()
     a,b,c,d=st.columns(4)
@@ -273,21 +273,21 @@ if page=="Overview":
                 "**Monthly trend:** each month is normalized to 100% of the selected monthly records. The areas show how the mix of supplied labels changes across snapshots; they do not follow individual customers or show score points.\n\n"
                 "**Current filtered comparison:** Good-label share moved from **{:.1f}%** in month {} to **{:.1f}%** in month {}; Poor-label share moved from **{:.1f}%** to **{:.1f}%**. These are record shares, not verified improvements in repayment or creditworthiness.\n\n"
                 "**Portfolio composition:** the ring chart summarizes the whole selected date range. A customer can appear repeatedly, so its denominator is monthly records, not distinct customers.\n\n"
-                "**Business use and limits:** use changes to decide what aggregate customer-education questions to investigate. Snapshot changes can reflect different records or reporting patterns; they do not establish why labels changed or whether an intervention would help.".format(
+                "**Business use and limits:** use the trend to prioritize portfolio investigation, data-quality review, and measurement design. Snapshot changes can reflect different records or reporting patterns; they do not establish why labels changed or which business action caused an effect.".format(
                     first_good,first_month,last_good,last_month,first_poor,last_poor
                 )
             )
     st.markdown("### What stands out")
     a,b,c=st.columns(3)
     with a:card("Largest score group","{} accounts for {} of selected monthly records.".format(composition.idxmax(),percent(composition.max())))
-    with b:card("Education opportunity","{} of records are labeled Poor. Explore payment and debt patterns.".format(percent(composition.get("Poor",0))))
+    with b:card("Portfolio attention","{} of records are labelled Poor. Review their payment, debt, and inquiry profile before setting an operating hypothesis.".format(percent(composition.get("Poor",0))))
     with c:card("Trend context","Customers recur across months, so monthly records are not unique people.")
     with st.expander("Download aggregate monthly summary"):
         summary=g.pivot(index="Month",columns="Credit_Score",values="Share").reindex(columns=SCORES).fillna(0).reset_index()
         st.download_button("Download score-share CSV",summary.to_csv(index=False).encode(),"credit_health_monthly_aggregate.csv","text/csv")
 
-elif page=="Credit patterns":
-    banner("Which patterns are associated with score groups?","Compare reported credit mix, payment behavior, and financial indicators.","PORTFOLIO EXPLORER")
+elif page=="Portfolio drivers":
+    banner("Which signals differentiate portfolio segments?","Compare reported credit mix, payment behaviour, debt, and operating indicators across supplied score labels.","PORTFOLIO DRIVERS")
     if view.empty:
         st.warning("No records match these filters.")
         st.stop()
@@ -307,9 +307,9 @@ elif page=="Credit patterns":
                     "Credit-mix composition",
                     "Each bar compares the share of reported Bad, Standard, and Good credit-mix categories among filtered monthly records in that score group.",
                     "The most common reported category in the current view is: {}. Compare the same color across Poor, Standard, and Good bars; the bar heights are percentages, not counts.".format(category_summary(grouped)),
-                    "A difference can help prioritize general education about understanding and checking credit-mix information in a report. It can also help analysts identify questions to validate with customers.",
+                    "The distribution helps identify which segments merit further portfolio analysis and whether the credit-mix field is useful in a governed decision workflow.",
                     "Credit mix is associated with the supplied label in this dataset; this chart does not show that changing a person's mix will change their score. Repeated customer-month rows are not independent people, and the source category definitions are not independently verified.",
-                    "Before proposing guidance, validate category meaning with the data owner and test whether customers understand the guidance. Do not use this chart for eligibility or individual recommendations."
+                    "Validate category definitions, availability timing, and potential leakage with the data owner before using this field in reporting or decision workflows. Do not use this chart alone for an individual decision."
                 )
             else:
                 st.info("No credit-mix values are available for this filter.")
@@ -324,9 +324,9 @@ elif page=="Credit patterns":
                     "Reported payment behaviour",
                     "Each stacked bar shows the distribution of the dataset's high/low spending and large/medium/small payment-behaviour labels within a score group.",
                     "Most common label by score group in this view: {}. Read each segment as a share of records with a reported category; the legend spells out the category names.".format(category_summary(grouped)),
-                    "The distribution may suggest which report terms customers need help interpreting. It is a candidate topic for customer education, not evidence that a spending pattern caused a label.",
+                    "The distribution may indicate a segment worth deeper operational analysis. It does not show that payment behaviour caused a label or that the field improves a business decision.",
                     "These are pre-labelled categories, not amounts, transaction histories, or a direct measure of whether a customer paid on time. The category semantics and units are not verified in the source.",
-                    "Confirm how the source creates these labels before designing any educational message, and measure comprehension and customer feedback in a small, voluntary pilot."
+                    "Confirm how the source creates these labels, then test whether the field adds predictive or operational value using a time-separated validation set and real outcome data."
                 )
             else:
                 st.info("No payment-behavior values are available for this filter.")
@@ -342,9 +342,9 @@ elif page=="Credit patterns":
                 "Minimum-payment response",
                 "The chart compares the dataset's recorded Yes, No, and NM responses within each supplied score group.",
                 "Most frequent recorded response by score group in this view: {}. Each bar is normalized over records with a non-null response; NM remains a visible response category.".format(category_summary(grouped)),
-                "The chart can identify whether the reporting field is populated consistently and which response terms may need explanation to customers.",
+                "The chart can identify reporting consistency and segment-level differences that merit data-quality review or deeper risk analysis.",
                 "NM means the dataset says the response was not mentioned; it is not the same as No, a missed payment, or a default. The chart does not verify actual payment behavior or explain the score label.",
-                "Verify the field's data dictionary and missingness process before drawing conclusions. If the field is used in education, monitor whether customers find the explanation clear and non-alarming."
+                "Verify the field's data dictionary and missingness process before drawing conclusions. If the field is used in an operating workflow, track stability, missingness, and outcome performance by segment."
             )
         else:
             st.info("No minimum-payment response values are available for this filter.")
@@ -371,7 +371,7 @@ elif page=="Credit patterns":
                     "The dotted 100 line is the filtered-data reference. A group at 120 is 20% above that field's reference median; 80 is 20% below. Compare groups within the same field, because fields use different units.",
                     "The chart can help analysts prioritize which portfolio patterns deserve validation or customer research. The direction alone does not identify a useful intervention.",
                     "A median does not describe every customer or the spread of values. Monthly records repeat customers, and a relative index is not a score, probability, causal effect, or personal risk rating.",
-                    "Use the original-scale view to check units, inspect distributions and missingness, and confirm that a proposed educational action addresses a real customer need."
+                    "Use the original-scale view to check units, inspect distributions and missingness, then validate whether the signal improves a defined business outcome."
                 )
             else:
                 st.info("Select at least one indicator.")
@@ -390,13 +390,13 @@ elif page=="Credit patterns":
                 "Current group medians: {}. A median is the middle value after sorting; it is not a typical value for every person.".format(median_values or "No group has a reportable median."),
                 "Use this view to describe the observed scale differences and to decide what field definitions should be checked next.",
                 "The dataset's currency and field semantics are unverified. Credit utilization is shown on its original source scale, which has not been confirmed as a percentage. Repeated snapshots mean row-level medians are not customer-independent.",
-                "Confirm units and definitions with the data owner before presenting numeric thresholds or turning the pattern into customer advice."
+                "Confirm units and definitions with the data owner before setting reporting thresholds or using the field in an operating decision workflow."
             )
         st.caption("Each monthly record is included; repeat snapshots from the same customer are not independent people.")
 
-elif page=="Customer journey":
-    banner("Follow aggregate score movement","Compare each customer's first and last score label within selected snapshots.","CUSTOMER JOURNEY")
-    st.markdown('<div class="notice"><b>Privacy:</b> one first-to-last pair per customer is summarized; IDs and individual journeys are never displayed.</div>',unsafe_allow_html=True)
+elif page=="Portfolio movement":
+    banner("Monitor aggregate portfolio movement","Compare first and last supplied score labels across the selected observation window.","PORTFOLIO MOVEMENT")
+    st.markdown('<div class="notice"><b>Decision use:</b> track whether the portfolio mix is stable or shifting, then investigate the segment, data, or operating-process factors behind material changes. IDs and individual histories are never displayed.</div>',unsafe_allow_html=True)
     if months[0]==months[1]:st.info("Choose at least two snapshots.")
     else:
         d=period.dropna(subset=["Customer_ID"]).sort_values(["Customer_ID","Month"]).groupby("Customer_ID").agg(start=("Credit_Score","first"),end=("Credit_Score","last"),first=("Month","first"),last=("Month","last")).reset_index(drop=True)
@@ -404,53 +404,53 @@ elif page=="Customer journey":
         if d.empty:st.warning("No customers have two snapshots.")
         else:
             rank={"Poor":0,"Standard":1,"Good":2};delta=d.end.map(rank)-d.start.map(rank);n=len(d)
-            a,b,c,e=st.columns(4);a.metric("Customers tracked","{:,}".format(n));b.metric("Improved label",percent((delta>0).mean()*100));c.metric("Same label",percent((delta==0).mean()*100));e.metric("Declined label",percent((delta<0).mean()*100))
+            a,b,c,e=st.columns(4);a.metric("Profiles tracked","{:,}".format(n));b.metric("Higher label",percent((delta>0).mean()*100));c.metric("Stable label",percent((delta==0).mean()*100));e.metric("Lower label",percent((delta<0).mean()*100))
             count=pd.crosstab(d.start,d.end).reindex(index=SCORES,columns=SCORES,fill_value=0);share=count.div(count.sum(axis=1).replace(0,np.nan),axis=0)*100
             text=[["{:.1f}%<br>n={:,}".format(share.iloc[i,j] if pd.notna(share.iloc[i,j]) else 0,count.iloc[i,j]) for j in range(3)] for i in range(3)]
             f=go.Figure(go.Heatmap(z=share.fillna(0),x=SCORES,y=SCORES,colorscale=[[0,"#F1F5F8"],[.5,"#87B9BE"],[1,"#177E89"]],text=text,texttemplate="%{text}",colorbar=dict(title="Row share",ticksuffix="%")))
             f.update_layout(title="Last label by starting label (row percentages)",xaxis_title="Last snapshot",yaxis_title="First snapshot")
             st.plotly_chart(chart_style(f,410),width="stretch")
-            st.caption("Each starting-score row sums to 100%; counts are customer-level pairs.")
+            st.caption("Each starting-score row sums to 100%; counts are anonymized profile-level pairs.")
             g=period.groupby(["Month","Credit_Score"],observed=True).size().rename("N").reset_index();g["Share"]=g.N/g.groupby("Month").N.transform("sum")*100
             f=px.line(g,x="Month",y="Share",color="Credit_Score",markers=True,category_orders={"Credit_Score":SCORES},color_discrete_map=COLORS,title="Score-label share across snapshots",labels={"Month":"Month","Share":"Share of records"})
             f.update_yaxes(ticksuffix="%");st.plotly_chart(chart_style(f,340),width="stretch")
-            with st.expander("Chart explanation · customer journey and monthly trend"):
+            with st.expander("Decision interpretation · portfolio movement and monthly trend"):
                 st.markdown(
-                    "**First-to-last heatmap:** each row is a starting label and each cell shows the percentage and count of customers ending in each label. Row percentages add to 100%. The summary above counts label transitions as improved, same, or declined using the order Poor < Standard < Good; it does not measure numeric score points.\n\n"
-                    "**Current customer-level summary:** {:,} customers have two or more selected snapshots; {:.1f}% moved to a higher label, {:.1f}% kept the same label, and {:.1f}% moved to a lower label. This compares only each customer's first and last selected observations and ignores intermediate changes.\n\n"
-                    "**Monthly line chart:** this uses monthly record shares across the selected months. It is a portfolio composition trend, not the same customer-level calculation as the heatmap. The journey analysis uses all score groups and credit mixes within the selected months, even if those sidebar filters select only some categories.\n\n"
-                    "**Interpretation and limits:** these are changes in supplied categories, not proof of improved or worsened repayment, default, or financial wellbeing. Snapshot timing, data quality, and other factors may explain changes; this analysis cannot establish cause.".format(
+                    "**First-to-last heatmap:** each row is a starting label and each cell shows the share and count of profiles ending in each label. Row percentages add to 100%. The summary applies the order Poor < Standard < Good; it does not measure numeric score points.\n\n"
+                    "**Portfolio movement summary:** {:,} profiles have two or more selected snapshots; {:.1f}% moved to a higher label, {:.1f}% remained stable, and {:.1f}% moved to a lower label. This compares only first and last observations and ignores intermediate movement.\n\n"
+                    "**Monthly line chart:** this shows portfolio composition by month. It is not the same calculation as the profile-level heatmap. The movement analysis uses all score groups and credit mixes within the selected months so the full portfolio is visible.\n\n"
+                    "**Decision implication:** investigate material shifts with data-quality checks, cohort analysis, and actual outcome data before changing a policy, offer, or operating process. The chart is descriptive and cannot establish cause.".format(
                         n,(delta>0).mean()*100,(delta==0).mean()*100,(delta<0).mean()*100
                     )
                 )
 
-elif page=="Action planner":
-    banner("Turn patterns into responsible experiments","Explore a portfolio signal and shape a customer-education pilot.","INSIGHT TO ACTION")
-    st.markdown('<div class="notice"><b>Guardrail:</b> these are portfolio-level education ideas, not personal advice or underwriting. Data has no repayment, campaign, approval, or revenue outcomes.</div>',unsafe_allow_html=True)
-    opts={"Payment delays":("Delay_from_due_date","Reported delay (days)","Test opt-in due-date reminders; measure verified on-time payment outcomes."),"Credit utilization":("Credit_Utilization_Ratio","Utilization (source scale)","Explain revolving balances and utilization; verify scale before numeric thresholds."),"Outstanding debt":("Outstanding_Debt","Debt (dataset units)","Offer debt overview and repayment education; verify units first."),"Credit inquiries":("Num_Credit_Inquiries","Inquiry count","Explain how inquiries may be recorded without discouraging needed credit."),"Credit history":("Credit_History_Age","History (months)","Explain how to review reports and maintain accurate history.")}
-    theme=st.selectbox("Customer-education theme",list(opts));col,label,idea=opts[theme]
+elif page=="Decision brief":
+    banner("From portfolio signal to decision brief","Select a business lens, compare the segment profile, and define the evidence needed before changing an operating decision.","DECISION BRIEF")
+    st.markdown('<div class="notice"><b>Use this for:</b> portfolio monitoring, analytical prioritisation, and decision-design hypotheses. It is not an automated underwriting, pricing, approval, or customer-level recommendation tool.</div>',unsafe_allow_html=True)
+    opts={"Payment delays":("Delay_from_due_date","Reported delay (days)","Investigate whether payment-delay distribution is stable by segment and whether it adds value against verified delinquency or repayment outcomes."),"Credit utilization":("Credit_Utilization_Ratio","Utilization (source scale)","Validate the field definition and test its incremental value for a defined portfolio outcome before setting any threshold."),"Outstanding debt":("Outstanding_Debt","Debt (dataset units)","Confirm source units, monitor segment concentration, and evaluate whether debt exposure improves portfolio monitoring when joined to actual outcomes."),"Credit inquiries":("Num_Credit_Inquiries","Inquiry count","Check timing and data lineage, then test whether inquiry patterns add useful, stable information beyond existing portfolio indicators."),"Credit history":("Credit_History_Age","History (months)","Validate history-age derivation and assess whether the pattern is stable across time before using it in segment reporting.")}
+    theme=st.selectbox("Business decision lens",list(opts));col,label,idea=opts[theme]
     g=period.groupby("Credit_Score",observed=True)[col].median().reindex(SCORES).dropna().rename("Median").reset_index()
     if not g.empty:
         f=px.bar(g,x="Credit_Score",y="Median",color="Credit_Score",category_orders={"Credit_Score":SCORES},color_discrete_map=COLORS,title="Portfolio median by score label",labels={"Credit_Score":"Score group","Median":label})
         f.update_layout(showlegend=False);st.plotly_chart(chart_style(f,370),width="stretch")
-        st.markdown("### Pilot idea");card("Suggested education experiment",idea)
+        st.markdown("### Decision hypothesis");card("Recommended analytical next step",idea)
         a,b,c=st.columns(3)
-        with a:card("Outcome","Track a verified customer outcome.")
-        with b:card("Safeguard","Monitor complaints, opt-outs, and understanding.")
-        with c:card("Comparison","Use a holdout group before claiming impact.")
-        st.caption("Planner uses all score groups and credit mixes for the selected months.")
+        with a:card("Business outcome","Join verified default, repayment, approval, conversion, or revenue outcomes before measuring impact.")
+        with b:card("Decision control","Define an owner, decision threshold, review cadence, and escalation path before operational use.")
+        with c:card("Evidence standard","Use a time-separated validation set or controlled experiment before attributing performance to a business change.")
+        st.caption("Decision brief uses all score groups and credit mixes for the selected months.")
         detailed_explanation(
-            "Action planner · {}".format(theme),
-            "The chart compares the selected indicator's median across supplied score labels for the selected months. The idea card proposes an aggregate customer-education experiment, not an individualized recommendation.",
-            "Read the bars as descriptive portfolio medians. They show association with the existing label only; they do not tell us which customers should receive an offer or whether the suggested idea will work.",
-            "A responsible pilot would be opt-in, accessible, and designed to improve customer understanding or a verified customer outcome. Use a randomized holdout or another credible comparison before attributing changes to the pilot.",
-            "The dataset does not contain campaign exposure, consent, applications, approvals, repayment/default outcomes, conversion, revenue, or customer-harm measures. Business impact cannot be calculated from these charts alone.",
-            "Define one primary outcome before launch and add safeguards such as complaints, opt-outs, comprehension, and equitable reach. Validate units and definitions for the chosen field first."
+            "Decision brief · {}".format(theme),
+            "The chart compares the selected indicator's median across supplied score labels for the selected months. The decision hypothesis identifies the next evidence-gathering step; it is not a customer-level recommendation.",
+            "Read the bars as descriptive portfolio medians. They may help prioritise analysis, but they do not show which individual should receive an offer or whether a proposed operating change will work.",
+            "Use this insight to define a decision owner, a target outcome, an evaluation window, and a comparison strategy. Only adopt an operating rule after it demonstrates value and stability on appropriately governed outcome data.",
+            "The dataset does not contain verified default, repayment, applications, approvals, conversion, revenue, or policy-decision outcomes. Business impact cannot be calculated from these charts alone.",
+            "Validate units, lineage, availability timing, stability, fairness, and outcome performance before deploying any model or rule. Maintain human review for consequential decisions."
         )
 
 else:
-    banner("Understand the data before acting","Definitions, calculations, privacy boundaries, and the limits of the conclusions.","METHOD & LIMITS")
-    st.markdown('<div class="notice"><b>Project purpose:</b> an analyst dashboard to understand aggregate credit profiles and plan responsible customer education. It is not a credit-scoring service or a lending decision tool.</div>',unsafe_allow_html=True)
+    banner("Understand the evidence before acting","Definitions, calculations, data boundaries, and the limits of portfolio-level conclusions.","DATA & LIMITS")
+    st.markdown('<div class="notice"><b>Project purpose:</b> a business-intelligence dashboard for aggregate credit-portfolio analysis and better decision design. It is not an automated credit-scoring, pricing, eligibility, or lending-decision service.</div>',unsafe_allow_html=True)
     st.markdown("### What the dashboard contains")
     col1,col2,col3=st.columns(3)
     with col1:
@@ -463,21 +463,24 @@ else:
     col1,col2=st.columns(2)
     with col1:
         st.markdown("### How to read the charts")
-        st.markdown("- **100% stacked bars:** each score-group bar is normalized to 100% after the current filters. Segment size shows a share of filtered monthly records.\n- **Monthly trend:** the denominator is records in each month; customers can recur in later months.\n- **Median comparison:** typical values are compared by label. The relative-index view sets the filtered-data median to 100 for each selected field.\n- **Customer journey:** one first-to-last label pair per customer. It ignores intermediate changes and is not a numeric score change.")
+        st.markdown("- **100% stacked bars:** each score-group bar is normalized to 100% after the current filters. Segment size shows a share of filtered monthly records.\n- **Monthly trend:** the denominator is records in each month; profiles can recur in later months.\n- **Median comparison:** typical values are compared by label. The relative-index view sets the filtered-data median to 100 for each selected field.\n- **Portfolio movement:** one first-to-last label pair per profile. It ignores intermediate changes and is not a numeric score change.")
     with col2:
         st.markdown("### Preparation and privacy")
         st.markdown("- ID, Name, and SSN are excluded while reading the CSV. Customer_ID is retained only for aggregate grouping.\n- Numeric-like fields are parsed safely; malformed values become missing.\n- NM is shown as “Not mentioned,” a report category. It is not automatically treated as a missed payment.\n- No text-NLP cleaning is applied because this is structured tabular data.\n- The raw source file contains direct identifiers. Keep it private and review notebook outputs before sharing.")
 
-    with st.expander("Notebook statistical tests · full dataset, unfiltered"):
-        st.markdown("The notebook summarizes one row per customer before testing, so the 8 monthly snapshots are not treated as 8 independent people. These are exploratory associations; the notebook does not document a multiple-testing correction.")
-        st.markdown("- **Income by label:** Good median 45,800.93 vs Poor 31,607.29; one-sided Mann–Whitney U, p = 3.16e-143, rank-biserial correlation = 0.372. Units/currency are unverified.\n- **Credit mix and label:** chi-square(4) = 6,633.64, p < 1e-300 (numerical underflow); Cramér’s V = 0.515. Association is not an eligibility rule.\n- **Payment delay by label:** Kruskal–Wallis H = 3,004.35, p < 1e-300 (numerical underflow); epsilon-squared = 0.240. Customer mean delay: Poor 30.00, Standard 19.19, Good 10.66.")
+    if USING_DEMO:
+        st.info("This public view uses synthetic demo data. Notebook statistics and model metrics from the private source dataset are intentionally not presented as results for this data.")
+    else:
+        with st.expander("Notebook statistical tests · full dataset, unfiltered"):
+            st.markdown("The notebook summarizes one row per profile before testing, so the 8 monthly snapshots are not treated as 8 independent people. These are exploratory associations; the notebook does not document a multiple-testing correction.")
+            st.markdown("- **Income by label:** Good median 45,800.93 vs Poor 31,607.29; one-sided Mann–Whitney U, p = 3.16e-143, rank-biserial correlation = 0.372. Units/currency are unverified.\n- **Credit mix and label:** chi-square(4) = 6,633.64, p < 1e-300 due to numerical underflow; Cramér’s V = 0.515. Association is not an eligibility rule.\n- **Payment delay by label:** Kruskal–Wallis H = 3,004.35, p < 1e-300 due to numerical underflow; epsilon-squared = 0.240. Profile mean delay: Poor 30.00, Standard 19.19, Good 10.66.")
 
-    with st.expander("Notebook model benchmark · label classification, not default prediction"):
-        st.markdown("The notebook fits Logistic Regression to reproduce the dataset’s existing Poor/Standard/Good label. It uses a customer-separated 80/20 split, preprocessing, and macro-F1 tuning. The app does not call this model.")
-        st.markdown("- **Test-set accuracy:** 0.668; **balanced accuracy:** 0.711; **macro F1:** 0.662.\n- Tuning did not materially improve macro F1.\n- This does not measure default risk, repayment, approval quality, revenue, or the impact of advice. Do not use it for eligibility, pricing, or approval.")
+        with st.expander("Notebook model benchmark · label classification, not business-outcome prediction"):
+            st.markdown("The notebook fits Logistic Regression to reproduce the dataset’s existing Poor/Standard/Good label. It uses a profile-separated 80/20 split, preprocessing, and macro-F1 tuning. The app does not call this model.")
+            st.markdown("- **Test-set accuracy:** 0.668; **balanced accuracy:** 0.711; **macro F1:** 0.662.\n- Tuning did not materially improve macro F1.\n- This does not measure default risk, repayment, approval quality, revenue, or the impact of a business decision. Do not use it for eligibility, pricing, or approval.")
 
     st.markdown("### What is not measured")
-    st.markdown("The data has no verified defaults, delinquency outcomes, loan applications, approvals, campaign exposure, customer consent, conversions, or revenue. Therefore this project cannot establish that a guidance program reduces defaults or improves business performance. Those outcomes require a governed follow-up study with a comparison group and customer-harm checks.")
+    st.markdown("The data has no verified defaults, delinquency outcomes, loan applications, approvals, policy decisions, conversions, or revenue. Therefore this project cannot establish that any process change will reduce defaults, improve approvals, or increase business performance. Those decisions require governed outcome data, time-based validation, and a defined comparison strategy.")
 
     if view.empty:
         st.info("No records match the current filters, so the current-view quality summary is empty.")
@@ -487,4 +490,4 @@ else:
         b.metric("Customers in current view","{:,}".format(people))
         c.metric("Missing cells in current view","{:,}".format(int(view.isna().sum().sum())))
 
-st.markdown('<div style="padding-top:1.8rem;border-top:1px solid #E2E8EF;margin-top:2rem;color:#718197;font-size:.86rem">Paisabazaar Credit Health Studio · Aggregate customer education · No individual credit decisions</div>',unsafe_allow_html=True)
+st.markdown('<div style="padding-top:1.8rem;border-top:1px solid #E2E8EF;margin-top:2rem;color:#718197;font-size:.86rem">Paisabazaar Credit Portfolio Intelligence · Aggregate business analysis · No individual credit decisions</div>',unsafe_allow_html=True)
